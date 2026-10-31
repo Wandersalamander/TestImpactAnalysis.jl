@@ -2585,8 +2585,8 @@ usage: fallout.jl COMMAND [options]
           [--shard K/N] [--commit REV] [--env NAME=VALUE]...
   merge   [--map MAP] --in SHARD_MAP --in SHARD_MAP ...
   select  [--map MAP] [--root DIR] [--base REV] [--to REV]
-  run     the options of select; runs the selected testsets through the map's runner,
-          in the map's project
+  run     the options of select and [--env NAME=VALUE]...; runs the selected testsets
+          through the map's runner, in the map's project (--env defaults to the build's)
   update  [--map MAP] [--root DIR] [--jobs N] [--timeout SECONDS] [--env NAME=VALUE]...
           (the checkout must match HEAD; --env defaults to the build's)
   audit   [--map MAP] [--root DIR] [--budget MINUTES] [--jobs N] [--timeout SECONDS]
@@ -2722,8 +2722,12 @@ function select_command(
     if isempty(map.suites)
         println("pattern: ", only(arguments))
     end
+    # The testsets were mapped under these variables (a runner may skip testsets without them).
+    environment = runner_environment(map, env_pairs(option_values(args, "--env")))
     println(
-        "run: julia --project=",
+        "run: ",
+        join((string(name, '=', value, ' ') for (name, value) in environment)),
+        "julia --project=",
         map.project,
         " ",
         map.runner,
@@ -2732,9 +2736,12 @@ function select_command(
     )
     if run_selected && !isempty(names)
         run(
-            Cmd(
-                `$(Base.julia_cmd()) --project=$(joinpath(root, map.project)) $(joinpath(root, map.runner)) $arguments`;
-                dir = root,
+            addenv(
+                Cmd(
+                    `$(Base.julia_cmd()) --project=$(joinpath(root, map.project)) $(joinpath(root, map.runner)) $arguments`;
+                    dir = root,
+                ),
+                environment...,
             )
         )
     end

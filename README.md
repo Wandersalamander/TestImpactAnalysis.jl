@@ -78,7 +78,7 @@ Options (`--root` defaults to the current directory, `--map` to `ROOT/test-impac
 | `--only SUBSTRING` | build | Map only matching testsets, for a smoke run |
 | `--shard K/N` | build | Map shard K of N |
 | `--commit REV` | build | Commit recorded in the map (default `git rev-parse HEAD`); `build` stops if a `.jl` file, environment file or test file differs from it |
-| `--env NAME=VALUE` | build, update, audit | Environment variable for each testset process; repeatable. Recorded in the map; `update` and `audit` reuse the recorded ones unless given |
+| `--env NAME=VALUE` | build, update, audit, run | Environment variable for each testset process; repeatable. Recorded in the map; `update`, `audit` and `run` reuse the recorded ones unless given |
 | `--budget MINUTES` | audit | Wall time to spend, estimated from the recorded times (default 20) |
 | `--in MAP` | merge | A shard map, relative to `--root` like `--map`; repeatable |
 | `--base REV`, `--to REV` | select, run | Compare `--base` (default the map's commit) with `--to` (default the working tree, untracked files included) |
